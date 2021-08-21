@@ -4,12 +4,15 @@ import csv
 from os.path import basename, splitext, join as joinpath
 import winreg
 from subprocess import check_call
+from datetime import date
 
 
 CSV_PROG_ID_PATH = '.csv'
 CSV_PROG_ID = 'CSV'
 RIGHT_CLICK_OPTION_PATH = r'Software\Classes\CSV\shell\formfiller'
 RIGHT_CLICK_TITLE='Fill Form'
+
+CURRENT_DATE_KEY = 'current_date'
 
 
 def main():
@@ -42,7 +45,8 @@ def fill_forms():
     print('Template: {}'.format(template_path))
 
     with open(params_path, encoding = 'utf8') as fp:
-        params=[row for row in csv.reader(fp)]
+        params=[row[:2] for row in csv.reader(fp)]
+    params.append([CURRENT_DATE_KEY, date.today().strftime('%d/%m/%Y')])
 
     doc=DocxTemplate(template_path)
     doc.render(params)
