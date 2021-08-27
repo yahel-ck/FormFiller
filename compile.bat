@@ -1,5 +1,8 @@
 @echo off
 
+@REM Save original working directory
+PUSHD .
+
 @REM Check if python is installed and alert user if not
 py -3 -V > nul 2>&1
 if errorlevel 1 (
@@ -16,6 +19,10 @@ call :ensure_package winreg || goto :end
 @REM Compile project into build folder
 if not exist .\build mkdir .\build
 CD .\build
+if not exist ..\formfiller.py (
+    call :echodq "Can't find 'formfiller.py' script to compile"
+    goto :end
+)
 pyinstaller -F ..\formfiller.py
 goto :end
 
@@ -41,4 +48,7 @@ goto :eof
 goto :eof
 
 :end
+    @REM Return to original working directory
+    POPD
+    @REM Pause if the script was ran without parameters
     if "%~1" == "" @pause
