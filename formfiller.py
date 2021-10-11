@@ -10,7 +10,7 @@ from datetime import date
 CSV_PROG_ID_PATH = '.csv'
 CSV_PROG_ID = 'CSV'
 RIGHT_CLICK_OPTION_PATH = r'Software\Classes\CSV\shell\formfiller'
-RIGHT_CLICK_TITLE='Fill Form'
+RIGHT_CLICK_TITLE = 'Fill Form'
 
 CURRENT_DATE_KEY = 'current_date'
 
@@ -38,24 +38,23 @@ def setup_formfiller():
 
 
 def fill_forms():
-    params_path=get_params_path()
+    params_path = get_params_path()
     print('Parameters: {}'.format(params_path))
 
-    template_path=get_template_path()
+    template_path = get_template_path()
     print('Template: {}'.format(template_path))
 
-    with open(params_path, encoding = 'utf8') as fp:
-        params=[row[:2] for row in csv.reader(fp)]
+    with open(params_path, encoding='utf8') as fp:
+        params = [row[:2] for row in csv.reader(fp)]
     params.append([CURRENT_DATE_KEY, date.today().strftime('%d/%m/%Y')])
 
-    doc=DocxTemplate(template_path)
+    doc = DocxTemplate(template_path)
     doc.render(params)
     doc.save(".\{}.docx".format(
         generate_file_name(params_path, template_path)))
-    
+
     print('Filled form successfully!')
     pause()
-
 
 
 def get_params_path():
@@ -71,14 +70,14 @@ def get_template_path():
 
 
 def generate_file_name(params_path, template_path):
-    params_name=splitext(basename(params_path))[0]
-    template_name=splitext(basename(template_path))[0]
+    params_name = splitext(basename(params_path))[0]
+    template_name = splitext(basename(template_path))[0]
     return '{}_{}'.format(template_name, params_name)
 
 
-def set_reg(key, sub_path, value, name = None):
+def set_reg(key, sub_path, value, name=None):
     winreg.CreateKey(key, sub_path)
-    regkey=winreg.OpenKey(key, sub_path, 0, winreg.KEY_WRITE)
+    regkey = winreg.OpenKey(key, sub_path, 0, winreg.KEY_WRITE)
     winreg.SetValueEx(regkey, name, 0, winreg.REG_SZ, value)
     winreg.CloseKey(regkey)
 
