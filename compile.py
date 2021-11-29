@@ -14,7 +14,7 @@ PYTHON_CMD = 'python'
 PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
-PYINSTALLER_CMD = 'pyinstaller --exclude-module _bootlocale -F {0}'
+PYINSTALLER_CMD = 'pyinstaller --exclude-module _bootlocale --noconsole -F {0}'
 
 
 def soft_assert(condition_result, error_message):
