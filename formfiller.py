@@ -17,36 +17,42 @@ CURRENT_DATE_KEY = 'current_date'
 def main():
     root = Tk()
     root.title('Form Filler')
+    root.resizable(True, False)
     # root.geometry('500x200')
 
     # Client details selection
     details_path_entry = build_file_selection_row(
-        root, 0, 'Client details file:')
+        root, 0, 'Client', pady=(8, 2))
 
     # Template selection
     template_path_entry = build_file_selection_row(
-        root, 1, 'Template file:')
+        root, 1, 'Form')
 
     def submit():
         params_path = details_path_entry.get()
         template_path = template_path_entry.get()
         try:
             fill_forms(template_path, params_path)
-        except ValueError as e:
-            messagebox.showerror('Error', e.message)
         except Exception as e:
-            messagebox.showerror('Error', 'Unknown error: {}'.format(e))
+            if isinstance(e, ValueError) and 'not a Word file' in str(e.args):
+                msg = e.args[0]
+            else:
+                msg = 'Unknown error: {}'.format(e)
+            messagebox.showerror('Error', msg)
 
     submit_button = tk.Button(root, text='Fill form', command=submit)
-    submit_button.grid(column=0, row=3)
+    submit_button.grid(column=0, row=3, pady=(4, 6), padx=8, sticky='w')
 
+    root.columnconfigure(1, weight=1)
     root.mainloop()
 
 
-def build_file_selection_row(root, row, label_text):
-    tk.Label(root, text=label_text).grid(row=row, column=0)
+def build_file_selection_row(root, row, label_text, pady=0):
+    label = tk.Label(root, text=label_text)
+    label.grid(row=row, column=0, padx=(10, 0), pady=pady, sticky='w')
+
     entry = tk.Entry(root)
-    entry.grid(row=row, column=1)
+    entry.grid(row=row, column=1, padx=8, pady=pady, sticky='we')
 
     def browse_file():
         filename = askopenfilename()
@@ -54,7 +60,7 @@ def build_file_selection_row(root, row, label_text):
         entry.insert(0, filename)
 
     button = tk.Button(root, text='Browse', command=browse_file)
-    button.grid(row=row, column=2)
+    button.grid(row=row, column=2, padx=(0, 8), pady=pady, sticky='e')
 
     return entry
 
