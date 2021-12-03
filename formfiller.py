@@ -1,21 +1,21 @@
+#!/usr/bin/env python
+
 import csv
-from posixpath import dirname, join
-import tkinter
+import tkinter.ttk as tk
 from datetime import date
 from os.path import basename
 from os.path import join as joinpath
-from os.path import splitext
+from os.path import splitext, dirname, basename
+from tkinter import messagebox, Tk
 from tkinter.filedialog import askopenfilename
-from tkinter import messagebox
 
 from docxtpl import DocxTemplate
-
 
 CURRENT_DATE_KEY = 'current_date'
 
 
 def main():
-    root = tkinter.Tk()
+    root = Tk()
     root.title('Form Filler')
     # root.geometry('500x200')
 
@@ -37,15 +37,15 @@ def main():
         except Exception as e:
             messagebox.showerror('Error', 'Unknown error: {}'.format(e))
 
-    submit_button = tkinter.Button(root, text='Fill form', command=submit)
+    submit_button = tk.Button(root, text='Fill form', command=submit)
     submit_button.grid(column=0, row=3)
 
     root.mainloop()
 
 
 def build_file_selection_row(root, row, label_text):
-    tkinter.Label(root, text=label_text).grid(row=row, column=0)
-    entry = tkinter.Entry(root)
+    tk.Label(root, text=label_text).grid(row=row, column=0)
+    entry = tk.Entry(root)
     entry.grid(row=row, column=1)
 
     def browse_file():
@@ -53,7 +53,7 @@ def build_file_selection_row(root, row, label_text):
         entry.delete(0, 'end')
         entry.insert(0, filename)
 
-    button = tkinter.Button(root, text='Browse', command=browse_file)
+    button = tk.Button(root, text='Browse', command=browse_file)
     button.grid(row=row, column=2)
 
     return entry
