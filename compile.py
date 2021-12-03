@@ -16,7 +16,8 @@ PYTHON_CMD = 'python'
 PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
-PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} -ywF {python_file}'
+PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon=formfiller.ico' \
+    ' -ywF {python_file}'
 
 
 def soft_assert(condition_result, error_message):
