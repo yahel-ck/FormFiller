@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import shlex
 import sys
 from os import chdir, mkdir
@@ -14,7 +16,7 @@ PYTHON_CMD = 'python'
 PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
-PYINSTALLER_CMD = 'pyinstaller --exclude-module _bootlocale --noconsole -F {0}'
+PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} -ywF {python_file}'
 
 
 def soft_assert(condition_result, error_message):
@@ -52,8 +54,10 @@ def ensure_package(package_name):
 
 def compile_script(script_path):
     print('Compilation starting...')
-    cmd = run(PYINSTALLER_CMD.format(script_path))
-    soft_assert(cmd.returncode == 0, "Compilation failed :(")
+    log_level = 'DEBUG' if is_debug else 'WARN'
+    cmd = PYINSTALLER_CMD.format(log_level=log_level, python_file=script_path)
+    proc = run(cmd, quiet=False)
+    soft_assert(proc.returncode == 0, "Compilation failed :(")
     print('Compiled successfully :)')
 
 
