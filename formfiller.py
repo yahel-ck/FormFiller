@@ -45,7 +45,8 @@ def main():
             raise e
 
     submit_button = tk.Button(root, text='Fill form', command=submit)
-    submit_button.grid(column=0, columnspan=2, row=3, pady=(4, 6), padx=8, sticky='w')
+    submit_button.grid(column=0, columnspan=2, row=3,
+                       pady=(4, 6), padx=8, sticky='w')
 
     root.columnconfigure(1, weight=1)
     root.mainloop()
