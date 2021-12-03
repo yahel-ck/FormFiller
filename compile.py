@@ -11,12 +11,13 @@ from subprocess import run as run_proc
 BUILD_DIR_PATH = './build'
 # The path to the script to compile, relative to build folder
 SCRIPT_PATH = '../formfiller.py'
+ICON_PATH = '../formfiller.ico'
 # Commands
 PYTHON_CMD = 'python'
 PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
-PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon=..\\formfiller.ico' \
+PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon={icon_path}' \
     ' -ywF {python_file}'
 
 
@@ -56,7 +57,11 @@ def ensure_package(package_name):
 def compile_script(script_path):
     print('Compilation starting...')
     log_level = 'DEBUG' if is_debug else 'WARN'
-    cmd = PYINSTALLER_CMD.format(log_level=log_level, python_file=script_path)
+    cmd = PYINSTALLER_CMD.format(
+        log_level=log_level,
+        python_file=script_path,
+        icon_path=ICON_PATH
+    )
     proc = run(cmd, quiet=False)
     soft_assert(proc.returncode == 0, "Compilation failed :(")
     print('Compiled successfully :)')
