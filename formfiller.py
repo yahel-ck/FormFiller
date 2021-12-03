@@ -1,19 +1,15 @@
 import csv
+from posixpath import dirname, join
 import tkinter
 from datetime import date
 from os.path import basename
 from os.path import join as joinpath
 from os.path import splitext
-from tkinter import ttk
 from tkinter.filedialog import askopenfilename
+from tkinter import messagebox
 
 from docxtpl import DocxTemplate
 
-
-CSV_PROG_ID_PATH = '.csv'
-CSV_PROG_ID = 'CSV'
-RIGHT_CLICK_OPTION_PATH = r'Software\Classes\CSV\shell\formfiller'
-RIGHT_CLICK_TITLE = 'Fill Form'
 
 CURRENT_DATE_KEY = 'current_date'
 
@@ -28,12 +24,18 @@ def main():
         root, 0, 'Client details file:')
 
     # Template selection
-    template_path_entry = build_file_selection_row(root, 1, 'Template file:')
+    template_path_entry = build_file_selection_row(
+        root, 1, 'Template file:')
 
     def submit():
         params_path = details_path_entry.get()
         template_path = template_path_entry.get()
-        fill_forms(template_path, params_path)
+        try:
+            fill_forms(template_path, params_path)
+        except ValueError as e:
+            messagebox.showerror('Error', e.message)
+        except Exception as e:
+            messagebox.showerror('Error', 'Unknown error: {}'.format(e))
 
     submit_button = tkinter.Button(root, text='Fill form', command=submit)
     submit_button.grid(column=0, row=3)
@@ -42,8 +44,8 @@ def main():
 
 
 def build_file_selection_row(root, row, label_text):
-    ttk.Label(root, text=label_text).grid(row=row, column=0)
-    entry = ttk.Entry(root)
+    tkinter.Label(root, text=label_text).grid(row=row, column=0)
+    entry = tkinter.Entry(root)
     entry.grid(row=row, column=1)
 
     def browse_file():
@@ -66,9 +68,7 @@ def fill_forms(template_path, params_path):
 
     doc = DocxTemplate(template_path)
     doc.render(params)
-    doc.save(".\{}.docx".format(
-        generate_file_name(params_path, template_path)))
-
+    doc.save(get_output_path(params_path, template_path, 'docx'))
     print('Filled form successfully!')
 
 
@@ -79,10 +79,12 @@ def get_params(params_path):
     return params
 
 
-def generate_file_name(params_path, template_path):
-    params_name = splitext(basename(params_path))[0]
+def get_output_path(params_path, template_path, file_extension):
+    client_folder = dirname(params_path)
+    client_name = splitext(basename(params_path))[0]
     template_name = splitext(basename(template_path))[0]
-    return '{}_{}'.format(template_name, params_name)
+    file_name = '{}_{}.{}'.format(client_name, template_name, file_extension)
+    return joinpath(client_folder, file_name)
 
 
 if __name__ == '__main__':
