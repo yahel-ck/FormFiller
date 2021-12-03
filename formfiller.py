@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import csv
 import tkinter.ttk as tk
@@ -8,6 +9,7 @@ from os.path import join as joinpath
 from os.path import splitext, dirname, basename
 from tkinter import messagebox, Tk
 from tkinter.filedialog import askopenfilename
+from io import TextIOWrapper
 
 from docxtpl import DocxTemplate
 
@@ -40,6 +42,7 @@ def main():
             else:
                 msg = 'Unknown error: {}'.format(e)
             messagebox.showerror('Error', msg)
+            raise e
 
     submit_button = tk.Button(root, text='Fill form', command=submit)
     submit_button.grid(column=0, columnspan=2, row=3, pady=(4, 6), padx=8, sticky='w')
@@ -80,8 +83,9 @@ def fill_forms(template_path, params_path):
 
 
 def get_params(params_path):
-    with open(params_path, encoding='utf8') as fp:
-        params = [row[:2] for row in csv.reader(fp)]
+    with open(params_path, 'rb') as bf:
+        with TextIOWrapper(bf, encoding='utf-8', newline='') as f:
+            params = [row[:2] for row in csv.reader(f)]
     params.append([CURRENT_DATE_KEY, date.today().strftime('%d/%m/%Y')])
     return params
 
