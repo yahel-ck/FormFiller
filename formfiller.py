@@ -1,89 +1,97 @@
-import sys
-from docxtpl import DocxTemplate
+#!/usr/bin/env python
+
 import csv
-from os.path import basename, splitext, join as joinpath
-import winreg
-from subprocess import check_call
+import tkinter.ttk as tk
 from datetime import date
+from os.path import basename
+from os.path import join as joinpath
+from os.path import splitext, dirname, basename
+from tkinter import messagebox, Tk
+from tkinter.filedialog import askopenfilename
 
-
-CSV_PROG_ID_PATH = '.csv'
-CSV_PROG_ID = 'CSV'
-RIGHT_CLICK_OPTION_PATH = r'Software\Classes\CSV\shell\formfiller'
-RIGHT_CLICK_TITLE = 'Fill Form'
+from docxtpl import DocxTemplate
 
 CURRENT_DATE_KEY = 'current_date'
 
 
 def main():
-    if len(sys.argv) < 2:
-        setup_formfiller()
-    else:
-        fill_forms()
+    root = Tk()
+    root.title('Form Filler')
+    root.resizable(True, False)
+    root.minsize(width=400, height=100)
+    # root.geometry('500x200')
+
+    # Client details selection
+    details_path_entry = build_file_selection_row(
+        root, 0, 'Client', pady=(8, 2))
+
+    # Template selection
+    template_path_entry = build_file_selection_row(
+        root, 1, 'Form')
+
+    def submit():
+        params_path = details_path_entry.get()
+        template_path = template_path_entry.get()
+        try:
+            fill_forms(template_path, params_path)
+        except Exception as e:
+            if isinstance(e, ValueError) and 'not a Word file' in str(e.args):
+                msg = e.args[0]
+            else:
+                msg = 'Unknown error: {}'.format(e)
+            messagebox.showerror('Error', msg)
+
+    submit_button = tk.Button(root, text='Fill form', command=submit)
+    submit_button.grid(column=0, columnspan=2, row=3, pady=(4, 6), padx=8, sticky='w')
+
+    root.columnconfigure(1, weight=1)
+    root.mainloop()
 
 
-def setup_formfiller():
-    try:
-        set_reg(winreg.HKEY_CLASSES_ROOT, CSV_PROG_ID_PATH, CSV_PROG_ID)
-        set_reg(winreg.HKEY_CURRENT_USER,
-                RIGHT_CLICK_OPTION_PATH,
-                RIGHT_CLICK_TITLE)
-        set_reg(winreg.HKEY_CURRENT_USER,
-                joinpath(RIGHT_CLICK_OPTION_PATH, 'command'),
-                '"{}" "%1"'.format(sys.argv[0]))
-        print('Installed successfully!')
-    except PermissionError:
-        print('Please run as administrator to install FormFiller')
-    pause()
+def build_file_selection_row(root, row, label_text, pady=0):
+    label = tk.Label(root, text=label_text)
+    label.grid(row=row, column=0, padx=(10, 10), pady=pady, sticky='w')
+
+    entry = tk.Entry(root)
+    entry.grid(row=row, column=1, padx=8, pady=pady, sticky='we')
+
+    def browse_file():
+        filename = askopenfilename()
+        entry.delete(0, 'end')
+        entry.insert(0, filename)
+
+    button = tk.Button(root, text='Browse', command=browse_file)
+    button.grid(row=row, column=2, padx=(0, 8), pady=pady, sticky='e')
+
+    return entry
 
 
-def fill_forms():
-    params_path = get_params_path()
-    print('Parameters: {}'.format(params_path))
+def fill_forms(template_path, params_path):
+    print('Template path: {}'.format(template_path))
+    print('Params path: {}'.format(params_path))
 
-    template_path = get_template_path()
-    print('Template: {}'.format(template_path))
-
-    with open(params_path, encoding='utf8') as fp:
-        params = [row[:2] for row in csv.reader(fp)]
-    params.append([CURRENT_DATE_KEY, date.today().strftime('%d/%m/%Y')])
+    params = get_params(params_path)
+    print('Params: {}'.format(params))
 
     doc = DocxTemplate(template_path)
     doc.render(params)
-    doc.save(".\{}.docx".format(
-        generate_file_name(params_path, template_path)))
-
+    doc.save(get_output_path(params_path, template_path, 'docx'))
     print('Filled form successfully!')
-    pause()
 
 
-def get_params_path():
-    # TODO Make sure it's a CSV file and alert user if not
-    if len(sys.argv) > 1:
-        return sys.argv[1]
-    return input('Enter parameters file path: ')
+def get_params(params_path):
+    with open(params_path, encoding='utf8') as fp:
+        params = [row[:2] for row in csv.reader(fp)]
+    params.append([CURRENT_DATE_KEY, date.today().strftime('%d/%m/%Y')])
+    return params
 
 
-def get_template_path():
-    # TODO Make sure it's a DOCX file and alert user if not
-    return input('Enter template file path: ')
-
-
-def generate_file_name(params_path, template_path):
-    params_name = splitext(basename(params_path))[0]
+def get_output_path(params_path, template_path, file_extension):
+    client_folder = dirname(params_path)
+    client_name = splitext(basename(params_path))[0]
     template_name = splitext(basename(template_path))[0]
-    return '{}_{}'.format(template_name, params_name)
-
-
-def set_reg(key, sub_path, value, name=None):
-    winreg.CreateKey(key, sub_path)
-    regkey = winreg.OpenKey(key, sub_path, 0, winreg.KEY_WRITE)
-    winreg.SetValueEx(regkey, name, 0, winreg.REG_SZ, value)
-    winreg.CloseKey(regkey)
-
-
-def pause():
-    check_call(['pause'], shell=True)
+    file_name = '{}_{}.{}'.format(client_name, template_name, file_extension)
+    return joinpath(client_folder, file_name)
 
 
 if __name__ == '__main__':
