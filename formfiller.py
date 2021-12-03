@@ -18,6 +18,7 @@ def main():
     root = Tk()
     root.title('Form Filler')
     root.resizable(True, False)
+    root.minsize(width=400, height=100)
     # root.geometry('500x200')
 
     # Client details selection
@@ -41,7 +42,7 @@ def main():
             messagebox.showerror('Error', msg)
 
     submit_button = tk.Button(root, text='Fill form', command=submit)
-    submit_button.grid(column=0, row=3, pady=(4, 6), padx=8, sticky='w')
+    submit_button.grid(column=0, columnspan=2, row=3, pady=(4, 6), padx=8, sticky='w')
 
     root.columnconfigure(1, weight=1)
     root.mainloop()
@@ -49,7 +50,7 @@ def main():
 
 def build_file_selection_row(root, row, label_text, pady=0):
     label = tk.Label(root, text=label_text)
-    label.grid(row=row, column=0, padx=(10, 0), pady=pady, sticky='w')
+    label.grid(row=row, column=0, padx=(10, 10), pady=pady, sticky='w')
 
     entry = tk.Entry(root)
     entry.grid(row=row, column=1, padx=8, pady=pady, sticky='we')
