@@ -7,11 +7,10 @@ from os.path import basename, isdir, isfile
 from subprocess import DEVNULL
 from subprocess import run as run_proc
 
-# The path to store the compilation output
-BUILD_DIR_PATH = './build'
+
 # The path to the script to compile, relative to build folder
-SCRIPT_PATH = '../formfiller.py'
-ICON_PATH = '../formfiller.ico'
+SCRIPT_PATH = 'gui.py'
+ICON_PATH = 'formfiller.ico'
 # Commands
 PYTHON_CMD = 'python'
 PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
@@ -19,6 +18,19 @@ CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
 PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon={icon_path}' \
     ' -ywF {python_file}'
+
+
+def main():
+    # Make sure python dependencies are installed
+    ensure_package('docxtpl')
+    ensure_package('pyinstaller')
+
+    # Make sure the script exits
+    soft_assert(isfile(SCRIPT_PATH), "Can't find '{}' script to compile"
+                .format(basename(SCRIPT_PATH)))
+
+    compile_script(SCRIPT_PATH)
+    print('Executable should be found under ./dist folder')
 
 
 def soft_assert(condition_result, error_message):
@@ -65,24 +77,6 @@ def compile_script(script_path):
     proc = run(cmd, quiet=False)
     soft_assert(proc.returncode == 0, "Compilation failed :(")
     print('Compiled successfully :)')
-
-
-def main():
-    # Make sure python dependencies are installed
-    ensure_package('docxtpl')
-    ensure_package('pyinstaller')
-
-    # Create and enter build folder
-    if not isdir('./build'):
-        mkdir('./build')
-    chdir('./build')
-
-    # Make sure the script exits
-    soft_assert(isfile(SCRIPT_PATH), "Can't find '{}' script to compile"
-                .format(basename(SCRIPT_PATH)))
-
-    compile_script(SCRIPT_PATH)
-    print('Executable should be found under build/dist folder')
 
 
 if __name__ == '__main__':
