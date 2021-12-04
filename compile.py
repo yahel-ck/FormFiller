@@ -2,22 +2,20 @@
 
 import shlex
 import sys
-from os import chdir, mkdir
-from os.path import basename, isdir, isfile
+from os.path import basename, isfile
 from subprocess import DEVNULL
 from subprocess import run as run_proc
 
-
-# The path to the script to compile, relative to build folder
 SCRIPT_PATH = 'gui.py'
 ICON_PATH = 'formfiller.ico'
+APP_NAME = 'Form Filler'
 # Commands
 PYTHON_CMD = 'python'
 PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
 PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon={icon_path}' \
-    ' -ywF {python_file}'
+    ' --clean -n "{app_name}" -ywF "{python_file}"'
 
 
 def main():
@@ -29,7 +27,7 @@ def main():
     soft_assert(isfile(SCRIPT_PATH), "Can't find '{}' script to compile"
                 .format(basename(SCRIPT_PATH)))
 
-    compile_script(SCRIPT_PATH)
+    compile_script(SCRIPT_PATH, APP_NAME, ICON_PATH)
     print('Executable should be found under ./dist folder')
 
 
@@ -66,14 +64,16 @@ def ensure_package(package_name):
         install_package(package_name)
 
 
-def compile_script(script_path):
+def compile_script(script_path, app_name, icon_path):
     print('Compilation starting...')
     log_level = 'DEBUG' if is_debug else 'WARN'
+
     cmd = PYINSTALLER_CMD.format(
         log_level=log_level,
         python_file=script_path,
-        icon_path=ICON_PATH
-    )
+        icon_path=icon_path,
+        app_name=app_name)
+
     proc = run(cmd, quiet=False)
     soft_assert(proc.returncode == 0, "Compilation failed :(")
     print('Compiled successfully :)')
