@@ -3,44 +3,44 @@
 import csv
 from datetime import date
 from io import TextIOWrapper
-from os.path import basename, dirname
-from os.path import join as joinpath
-from os.path import splitext
-
 from docxtpl import DocxTemplate
+from pdfjinja import PDFTemplate
 
-CURRENT_DATE_KEY = 'current_date'
+TODAY_KEY = 'today'
 
 
-def fill_form(template_path, params_path, output_path=None):
-    print('Template path: {}'.format(template_path))
-    print('Params path: {}'.format(params_path))
-
-    params = get_params(params_path)
-    print('Params: {}'.format(params))
-
-    if output_path is None:
-        output_path = get_output_path(params_path, template_path, 'docx')
-
-    doc = DocxTemplate(template_path)
+def fill_form(template_path, params, output_path):
+    """
+    Fills the form with the given parameters and saves it to the given output path.
+    Uses `get_doc_template` to determine the appropriate template class.
+    """
+    params = read_params(params)
+    doc = get_doc_template(template_path)
     doc.render(params)
     doc.save(output_path)
 
-    print('Filled form successfully!')
-    print('Output path: {}'.format(output_path))
+
+def get_doc_template(template_path):
+    """
+    Returns the appropriate template class for the given template path
+    according to the file extention.
+    """
+    if template_path.endswith('.docx'):
+        return DocxTemplate(template_path)
+    elif template_path.endswith('.pdf'):
+        return PDFTemplate(template_path)
 
 
-def get_params(params_path):
+def read_params(params_path):
+    if isinstance(params_path, dict) or isinstance(params_path, list):
+        # params already read
+        return params_path
+
     with open(params_path, 'rb') as bf:
         with TextIOWrapper(bf, encoding='utf-8', newline='') as f:
             params = [row[:2] for row in csv.reader(f)]
-    params.append([CURRENT_DATE_KEY, date.today().strftime('%d/%m/%Y')])
+
+    if not filter(lambda pair: pair[0] == TODAY_KEY, params):
+        params.append([TODAY_KEY, date.today().strftime('%d/%m/%Y')])
     return params
 
-
-def get_output_path(params_path, template_path, file_extension):
-    client_folder = dirname(params_path)
-    client_name = splitext(basename(params_path))[0]
-    template_name = splitext(basename(template_path))[0]
-    file_name = '{}_{}.{}'.format(client_name, template_name, file_extension)
-    return joinpath(client_folder, file_name)
