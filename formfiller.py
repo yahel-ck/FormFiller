@@ -40,7 +40,7 @@ def read_params(params_path):
         with TextIOWrapper(bf, encoding='utf-8', newline='') as f:
             params = [row[:2] for row in csv.reader(f)]
 
-    if not filter(lambda pair: pair[0] == TODAY_KEY, params):
+    if not next((pair[0] == TODAY_KEY for pair in params), None):
         params.append([TODAY_KEY, date.today().strftime('%d/%m/%Y')])
     return params
 
