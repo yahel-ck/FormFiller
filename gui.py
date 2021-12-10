@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import tkinter.ttk as tk
 from os import makedirs
-from os.path import basename, dirname, expanduser, exists
+from os.path import basename, dirname, expanduser
 from os.path import join as joinpath
 from os.path import splitext
 from tkinter import Tk, messagebox
