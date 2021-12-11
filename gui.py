@@ -10,7 +10,7 @@ from tkinter.filedialog import askopenfilename
 
 from formfiller import fill_form, read_params
 
-PARAMS_FILE_TYPES = (('CSV file', '*.csv'), ('JSON file', '*.json'))
+PARAMS_FILE_TYPES = (('Excel file', '.xlsx'),)
 TEMPLATE_FILE_TYPES = (('Word file', '*.docx'), ('PDF file', '*.pdf'))
 PARAM_FILE_SETTING_NAME = 'param_file_entry'
 TEMPLATE_FILE_SETTING_NAME = 'template_file_entry'

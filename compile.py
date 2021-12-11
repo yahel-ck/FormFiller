@@ -22,6 +22,8 @@ def main():
     # Make sure python dependencies are installed
     ensure_package('docxtpl')
     ensure_package('pyinstaller')
+    ensure_package('pandas')
+    ensure_package('openpyxl')
 
     # Make sure the script exits
     soft_assert(isfile(SCRIPT_PATH), "Can't find '{}' script to compile"
