@@ -7,7 +7,8 @@ from subprocess import DEVNULL
 from subprocess import run as run_proc
 
 SCRIPT_PATH = 'app.py'
-ICON_PATH = 'icon.png'
+ICON_PATH = 'icon.ico'
+WINDOW_ICON_PATH = 'icon.png'
 APP_NAME = 'Form Filler'
 # Commands
 PYTHON_CMD = 'python'
@@ -15,7 +16,7 @@ PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
 PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon={icon_path}' \
-    ' --clean --add-binary "{icon_path};." -n "{app_name}" -ywF "{python_file}"'
+    ' --clean --add-binary "{extra_binary};." -n "{app_name}" -ywF "{python_file}"'
 
 
 def main():
@@ -29,7 +30,7 @@ def main():
     soft_assert(isfile(SCRIPT_PATH), "Can't find '{}' script to compile"
                 .format(basename(SCRIPT_PATH)))
 
-    compile_script(SCRIPT_PATH, APP_NAME, ICON_PATH)
+    compile_script(SCRIPT_PATH, APP_NAME, ICON_PATH, WINDOW_ICON_PATH)
     print('Executable should be found under ./dist folder')
 
 
@@ -66,12 +67,13 @@ def ensure_package(package_name):
         install_package(package_name)
 
 
-def compile_script(script_path, app_name, icon_path):
+def compile_script(script_path, app_name, icon_path, extra_binary):
     print('Compilation starting...')
     cmd = PYINSTALLER_CMD.format(
         log_level='DEBUG' if is_debug else 'ERROR',
         python_file=script_path,
         icon_path=icon_path,
+        extra_binary=extra_binary,
         app_name=app_name)
     proc = run(cmd, quiet=False)
     soft_assert(proc.returncode == 0, "Compilation failed :(")
