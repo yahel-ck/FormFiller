@@ -6,8 +6,8 @@ from os.path import basename, isfile
 from subprocess import DEVNULL
 from subprocess import run as run_proc
 
-SCRIPT_PATH = 'gui.py'
-ICON_PATH = 'formfiller.ico'
+SCRIPT_PATH = 'app.py'
+ICON_PATH = 'icon.png'
 APP_NAME = 'Form Filler'
 # Commands
 PYTHON_CMD = 'python'
@@ -15,7 +15,7 @@ PIP_CMD = PYTHON_CMD + ' -m pip --no-input'
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
 PYINSTALLER_CMD = 'pyinstaller --log-level {log_level} --icon={icon_path}' \
-    ' --clean -n "{app_name}" -ywF "{python_file}"'
+    ' --clean --add-binary "{icon_path};." -n "{app_name}" -ywF "{python_file}"'
 
 
 def main():
