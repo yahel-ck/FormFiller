@@ -68,14 +68,11 @@ def ensure_package(package_name):
 
 def compile_script(script_path, app_name, icon_path):
     print('Compilation starting...')
-    log_level = 'DEBUG' if is_debug else 'WARN'
-
     cmd = PYINSTALLER_CMD.format(
-        log_level=log_level,
+        log_level='DEBUG' if is_debug else 'ERROR',
         python_file=script_path,
         icon_path=icon_path,
         app_name=app_name)
-
     proc = run(cmd, quiet=False)
     soft_assert(proc.returncode == 0, "Compilation failed :(")
     print('Compiled successfully :)')
