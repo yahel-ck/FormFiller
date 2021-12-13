@@ -14,12 +14,13 @@ CMAP_RE = re.compile(
 
 def map_text_objects(page, content_stream, mapper_func):
     """
-    Iterates over each TextStringObject in the given ContentStream, and applies the
+    Iterates over each string object in the given ContentStream, and applies the
     given function to it.
 
-    Note: Works only for TextStringObjects. ByteStringObjects
-    are strings where the byte->cstring encoding was unknown,
-    so their text here would be gibberish.
+    Note: Works only for TextStringObjects or ByteStringObjects with cmap
+    defined. ByteStringObjects are strings where the byte->cstring encoding was 
+    unknown, but if they have a cmap field we can translate them to unicode,
+    otherwise their text here would be gibberish.
     """
     def map_text_object(parent, index):
         obj = translate(parent[index])
@@ -51,8 +52,7 @@ def map_text_objects(page, content_stream, mapper_func):
                 font = operands[0]
                 c_map = c_maps.get(font)
                 if (c_map == None):
-                    c_map = parse_cmap(
-                        str_(page["/Resources"]["/Font"][font]["/ToUnicode"].getData()))
+                    c_map = parse_cmap(get_cmap_data(page, font))
                     c_maps[font] = c_map
             except KeyError:
                 c_map = None
@@ -64,6 +64,10 @@ def map_text_objects(page, content_stream, mapper_func):
             objs = operands[0]
             for i in range(len(objs)):
                 map_text_object(objs, i)
+
+
+def get_cmap_data(page, font):
+    return str_(page["/Resources"]["/Font"][font]["/ToUnicode"].getData())
 
 
 def parse_cmap(cstr):

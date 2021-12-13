@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import date
-from docxtpl import DocxTemplate
-from pdfjinja import PDFTemplate
+
 import pandas as pd
+from docxtpl import DocxTemplate
+
+from pdfjinja import PDFTemplate
 
 TODAY_KEY = 'today'
 
 
 def fill_form(template_path, params, output_path):
     """
-    Fills the form with the given parameters and saves it to the given output path.
-    Uses `get_doc_template` to determine the appropriate template class.
+    Fills the form with the given parameters and saves it to the given output 
+    path. Uses `get_doc_template` to determine the appropriate template class.
     """
     params = read_params(params)
     doc = get_doc_template(template_path)
@@ -43,7 +45,8 @@ def read_params(params_path):
 
 def append_default_params(params):
     """
-    Appends the default parameters to the given parameters if the their key isn't defined.
+    Appends the default parameters to the given parameters if the their key 
+    isn't defined.
     """
     if TODAY_KEY not in map(lambda pair: pair[0], params):
         params.append((TODAY_KEY, date.today().strftime('%d/%m/%Y')))
