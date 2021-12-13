@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import csv
 from datetime import date
-from io import TextIOWrapper
 from docxtpl import DocxTemplate
 from pdfjinja import PDFTemplate
 import pandas as pd
