@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 from tkinter.ttk import Label, Entry, Button, Frame
 from os import makedirs
-from os.path import basename, dirname, expanduser
+from os.path import basename, dirname, expanduser, abspath
 from os.path import join as joinpath
 from os.path import splitext
 from tkinter import Image, Tk, messagebox
 from tkinter.filedialog import askopenfilename
+import sys
 
 from formfiller import fill_form, read_params
 
@@ -42,6 +43,11 @@ def save_setting(setting_name, value):
         f.write(value)
 
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', dirname(abspath(__file__)))
+    return joinpath(base_path, relative_path)
+
 class FormFillerApp(object):
     def __init__(self):
         self.root = Tk()
@@ -51,7 +57,7 @@ class FormFillerApp(object):
         self.root.columnconfigure(1, weight=1)
 
         # Set window icon
-        img = Image("photo", file=ICON_PATH)
+        img = Image("photo", file=resource_path(ICON_PATH))
         self.root.tk.call('wm', 'iconphoto', self.root._w, img)
         # root.iconphoto(True, img)
         # root.iconbitmap(ICON_PATH)
