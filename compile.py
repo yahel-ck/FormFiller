@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-from posixpath import abspath
+import ctypes
+import os
 import shlex
 import sys
-from os.path import basename, splitext
+from os.path import basename
 from os.path import join as joinpath
+from os.path import splitext
+from posixpath import abspath
 from subprocess import run as run_proc
-import os
-import ctypes
 
 SCRIPT_PATH = 'app.py'
 ICON_PATH = 'icon.ico'
@@ -40,7 +41,7 @@ def main():
 
     compile_script(SCRIPT_PATH, APP_NAME, ICON_PATH, WINDOW_ICON_PATH)
     print('Executable should be found under ./dist folder')
-    create_desktop_shortcut(joinpath('./dist', APP_NAME + '.exe'))
+    create_desktop_shortcut(joinpath('./dist', APP_NAME, APP_NAME + '.exe'))
 
 
 def run(cmd, **kwargs):
@@ -79,8 +80,11 @@ def create_desktop_shortcut(file_path, shortcut_name=None):
         shortcut_name = splitext(basename(file_path))[0]
     file_path = abspath(file_path)
     if os.name == 'nt':
+        shortcut_path = joinpath(os.environ['USERPROFILE'], 'Desktop',
+                                 shortcut_name + '.lnk')
         kdll = ctypes.windll.LoadLibrary('kernel32.dll')
-        kdll.CreateSymbolicLinkW(shortcut_name, file_path, 0)
+        kdll.CreateSymbolicLinkW(shortcut_path, file_path, 0)
+        print('Created shortcut at: {}'.format(shortcut_path))
     else:
         print('Shortcut creation is not supported on this platform')
 
