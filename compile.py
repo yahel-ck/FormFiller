@@ -7,6 +7,7 @@ from os.path import basename, splitext
 from os.path import join as joinpath
 from subprocess import run as run_proc
 import os
+import ctypes
 
 SCRIPT_PATH = 'app.py'
 ICON_PATH = 'icon.ico'
@@ -78,11 +79,8 @@ def create_desktop_shortcut(file_path, shortcut_name=None):
         shortcut_name = splitext(basename(file_path))[0]
     file_path = abspath(file_path)
     if os.name == 'nt':
-        shortcut_path = joinpath(
-            os.environ['USERPROFILE'], 'Desktop', shortcut_name + '.lnk')
-        run(SHORTCUT_NT_CMD.format(
-            shortcut_path=shortcut_path, file_path=file_path))
-        print('Shortcut created at {}'.format(shortcut_path))
+        kdll = ctypes.windll.LoadLibrary('kernel32.dll')
+        kdll.CreateSymbolicLinkW(shortcut_name, file_path, 0)
     else:
         print('Shortcut creation is not supported on this platform')
 
