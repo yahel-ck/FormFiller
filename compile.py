@@ -78,11 +78,11 @@ def create_desktop_shortcut(file_path, shortcut_name=None):
         shortcut_name = splitext(basename(file_path))[0]
     file_path = abspath(file_path)
     if os.name == 'nt':
+        shortcut_path = joinpath(
+            os.environ['USERPROFILE'], 'Desktop', shortcut_name + '.lnk')
         run(SHORTCUT_NT_CMD.format(
-            shortcut_path=joinpath(os.environ['USERPROFILE'], 'Desktop',
-                                   shortcut_name + '.lnk'),
-            file_path=file_path
-        ))
+            shortcut_path=shortcut_path, file_path=file_path))
+        print('Shortcut created at {}'.format(shortcut_path))
     else:
         print('Shortcut creation is not supported on this platform')
 
