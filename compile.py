@@ -75,12 +75,18 @@ def create_desktop_shortcut(file_path, shortcut_name=None):
     if shortcut_name is None:
         shortcut_name = splitext(basename(file_path))[0]
     if os.name == 'nt':
-        ensure_package('pywin32')
+        from win32com.client import Dispatch
         from win32com.shell import shell, shellcon
-        desktop_path = shell.SHGetFolderPath(0, shellcon.CSIDL_DESKTOP, 0, 0)
-        shortcut_path = joinpath(desktop_path, '{}.lnk'.format(shortcut_name))
-        shell.CreateShortcut(shortcut_path, file_path)
-        print('Shortcut created at {}'.format(shortcut_path))
+        import pythoncom
+        pythoncom.CoInitialize()
+        shell.SHChangeNotify(
+            shellcon.SHCNE_CREATE,
+            shellcon.SHCNF_PATH,
+            joinpath(os.environ['USERPROFILE'],
+                     'Desktop', shortcut_name + '.lnk'),
+            None
+        )
+        pythoncom.CoUninitialize()
     else:
         print('Shortcut creation is not supported on this platform')
 
