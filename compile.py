@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from posixpath import abspath
 import shlex
 import sys
 from os.path import basename, splitext
@@ -19,6 +20,7 @@ ENSURE_PACKAGES = (
 PIP_CMD = '"{}" -m pip --no-input'.format(sys.executable)
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
+SHORTCUT_NT_CMD = 'mklink "{shortcut_path}" "{file_path}"'
 PYINSTALLER_CMD = (
     ' --noconfirm'
     ' --clean'
@@ -74,19 +76,13 @@ def compile_script(script_path, app_name, icon_path, window_icon):
 def create_desktop_shortcut(file_path, shortcut_name=None):
     if shortcut_name is None:
         shortcut_name = splitext(basename(file_path))[0]
+    file_path = abspath(file_path)
     if os.name == 'nt':
-        from win32com.client import Dispatch
-        from win32com.shell import shell, shellcon
-        import pythoncom
-        pythoncom.CoInitialize()
-        shell.SHChangeNotify(
-            shellcon.SHCNE_CREATE,
-            shellcon.SHCNF_PATH,
-            joinpath(os.environ['USERPROFILE'],
-                     'Desktop', shortcut_name + '.lnk'),
-            None
-        )
-        pythoncom.CoUninitialize()
+        run(SHORTCUT_NT_CMD.format(
+            shortcut_path=joinpath(os.environ['USERPROFILE'], 'Desktop',
+                                   shortcut_name + '.lnk'),
+            file_path=file_path
+        ))
     else:
         print('Shortcut creation is not supported on this platform')
 
