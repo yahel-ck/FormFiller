@@ -5,6 +5,7 @@ import sys
 from os.path import basename, splitext
 from os.path import join as joinpath
 from subprocess import run as run_proc
+import os
 
 SCRIPT_PATH = 'app.py'
 ICON_PATH = 'icon.ico'
@@ -23,7 +24,7 @@ PYINSTALLER_CMD = (
     ' --clean'
     ' --noconsole'
     ' --icon={icon_path}'
-    ' --add-data "{window_icon_path}:."'
+    ' --add-data "{window_icon_path}{sep}."'
     ' -n "{app_name}"'
     ' "{python_file}"'
 )
@@ -63,7 +64,8 @@ def compile_script(script_path, app_name, icon_path, window_icon):
         python_file=script_path,
         icon_path=icon_path,
         window_icon_path=window_icon,
-        app_name=app_name
+        app_name=app_name,
+        sep=';' if os.name == 'nt' else ':'
     )
     print('Running pyinstaller with args: {}'.format(cmd))
     run_pyinstaller(shlex.split(cmd))
