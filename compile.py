@@ -12,7 +12,7 @@ ICON_PATH = 'icon.ico'
 WINDOW_ICON_PATH = 'icon.png'
 APP_NAME = 'Form Filler'
 ENSURE_PACKAGES = (
-    'docxtpl', 'pyinstaller', 'pandas', 'openpyxl', 'PyPdf2', 'pycrosskit'
+    'docxtpl', 'pyinstaller', 'pandas', 'openpyxl', 'PyPdf2'
 )
 
 # Commands
@@ -72,13 +72,16 @@ def compile_script(script_path, app_name, icon_path, window_icon):
 
 
 def create_desktop_shortcut(file_path, shortcut_name=None):
-    from pycrosskit.shortcuts import Shortcut
-    return Shortcut(
-        shortcut_name or splitext(basename(file_path))[0], 
-        file_path,
-        desktop=True,
-        start_menu=True
-    )
+    if shortcut_name is None:
+        shortcut_name = splitext(basename(file_path))[0]
+    if os.name == 'nt':
+        from win32com.shell import shell, shellcon
+        desktop_path = shell.SHGetFolderPath(0, shellcon.CSIDL_DESKTOP, 0, 0)
+        shortcut_path = joinpath(desktop_path, '{}.lnk'.format(shortcut_name))
+        shell.CreateShortcut(shortcut_path, file_path)
+        print('Shortcut created at {}'.format(shortcut_path))
+    else:
+        print('Shortcut creation is not supported on this platform')
 
 
 if __name__ == '__main__':
