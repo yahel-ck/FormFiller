@@ -4,7 +4,7 @@ import ctypes
 import os
 import shlex
 import sys
-from os.path import basename
+from os.path import basename, expanduser, isdir
 from os.path import join as joinpath
 from os.path import splitext
 from posixpath import abspath
@@ -22,7 +22,6 @@ ENSURE_PACKAGES = (
 PIP_CMD = '"{}" -m pip --no-input'.format(sys.executable)
 CHECK_PACKAGE_CMD = PIP_CMD + ' show {0}'
 INSTALL_PACKAGE_CMD = PIP_CMD + ' install {0}'
-SHORTCUT_NT_CMD = 'mklink "{shortcut_path}" "{file_path}"'
 PYINSTALLER_CMD = (
     ' --noconfirm'
     ' --clean'
@@ -79,14 +78,40 @@ def create_desktop_shortcut(file_path, shortcut_name=None):
     if shortcut_name is None:
         shortcut_name = splitext(basename(file_path))[0]
     file_path = abspath(file_path)
-    if os.name == 'nt':
-        shortcut_path = joinpath(os.environ['USERPROFILE'], 'Desktop',
-                                 shortcut_name + '.lnk')
-        kdll = ctypes.windll.LoadLibrary('kernel32.dll')
-        kdll.CreateSymbolicLinkW(shortcut_path, file_path, 0)
-        print('Created shortcut at: {}'.format(shortcut_path))
+    
+    pathutil = WindowsPathUtil if os.name == 'nt' else PosixPathUtil
+    desktop_path = pathutil.get_desktop_path()
+    if isdir(desktop_path):
+        shortcut_path = joinpath(desktop_path, shortcut_name)
+        print('Creating shortcut {} to {}'.format(shortcut_path, file_path))
+        pathutil.create_shortcut(file_path, shortcut_path)
     else:
-        print('Shortcut creation is not supported on this platform')
+        print('Desktop folder not found, skipping shortcut creation')
+
+
+class WindowsPathUtil(object):
+    @classmethod
+    def get_desktop_path():
+        return ctypes.windll.shell32.SHGetFolderPathW(0, 0, 0, 0)
+
+    @classmethod
+    def create_shortcut(file_path, shortcut_path, is_dir=False,
+                        extention='.lnk'):
+        kdll = ctypes.windll.LoadLibrary('kernel32.dll')
+        shortcut_path += extention
+        kdll.CreateSymbolicLinkW(shortcut_path, file_path, int(is_dir))
+
+
+class PosixPathUtil(object):
+    @classmethod
+    def get_desktop_path():
+        path = expanduser('~/Desktop')
+        return path if isdir(path) else None
+
+    @classmethod
+    def create_shortcut(file_path, shortcut_path, is_dir=False, extention=''):
+        shortcut_path += extention
+        run('ln -s {} {}'.format(file_path, shortcut_path))
 
 
 if __name__ == '__main__':
