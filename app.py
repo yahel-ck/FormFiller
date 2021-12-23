@@ -48,13 +48,13 @@ def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', dirname(abspath(__file__)))
     return joinpath(base_path, relative_path)
 
+
 class FormFillerApp(object):
     def __init__(self):
         self.root = Tk()
         self.root.title('Form Filler')
         self.root.resizable(True, False)
         self.root.minsize(width=400, height=100)
-        self.root.columnconfigure(1, weight=1)
 
         # Set window icon
         img = Image("photo", file=resource_path(ICON_PATH))
@@ -64,27 +64,22 @@ class FormFillerApp(object):
 
         self.frame = Frame(self.root)
         self.frame.pack(fill='both', expand=True, padx=10, pady=10)
+        self.frame.columnconfigure(1, weight=1)
 
         self.details_path_entry = self.build_file_selection_row(
-            0, 'Client', PARAMS_FILE_TYPES)
+            'Client', PARAMS_FILE_TYPES, row=0)
 
         self.template_path_entry = self.build_file_selection_row(
-            1, 'Form', TEMPLATE_FILE_TYPES)
+            'Form', TEMPLATE_FILE_TYPES, row=1)
 
-        self.result_label = Label(self.frame, text='')
-        self.result_label.grid(
-            column=1, columnspan=2, row=3, pady=(6, 0), padx=10, sticky='wns')
+        self.build_submit_row(2)
 
-        self.submit_button = Button(
-            self.frame, text='Fill form', command=self.submit)
-        self.submit_button.grid(column=0, row=3, pady=(6, 0), sticky='wns')
-
-    def build_file_selection_row(self, row, label_text, filetypes):
+    def build_file_selection_row(self, label_text, filetypes, row):
         setting_name = 'entry_{}'.format(label_text.lower().replace(' ', '_'))
         label = Label(self.frame, text=label_text)
         label.grid(row=row, column=0, pady=(0, 2), sticky='w')
 
-        entry = Entry(self.frame, width=45)
+        entry = Entry(self.frame, width=60)
         entry.grid(row=row, column=1, padx=8, pady=(0, 2), sticky='we')
         entry.insert(0, load_setting(setting_name))
 
@@ -100,6 +95,22 @@ class FormFillerApp(object):
         button.grid(row=row, column=2, pady=(0, 2), sticky='e')
 
         return entry
+
+    def build_submit_row(self, row):
+        """
+        Builds a frame holding the submit button and an output label.
+        """
+        submit_frame = Frame(self.frame)
+        submit_frame.grid(column=0, row=row, columnspan=3,
+                          sticky='we', pady=(5, 0))
+        submit_frame.columnconfigure(1, weight=1)
+
+        self.submit_button = Button(
+            submit_frame, text='Fill form', command=self.submit)
+        self.submit_button.grid(column=0, row=0, sticky='we')
+
+        self.result_label = Label(submit_frame, text='')
+        self.result_label.grid(column=1, row=0, sticky='we', padx=8)
 
     def submit(self):
         params_path = self.details_path_entry.get()
