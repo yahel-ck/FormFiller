@@ -93,10 +93,10 @@ def parse_cmap(cstr):
 
 
 class PDFTemplate(object):
-    def __init__(self, template_path, jinja_env=None):
+    def __init__(self, template_path):
         self.reader = PdfFileReader(template_path)
         self.writer = PdfFileWriter()
-        self.jinja_env = jinja_env or Environment()
+        self.jinja_env = None
         self.params = None
 
     def map_text(self, text):
@@ -113,11 +113,12 @@ class PDFTemplate(object):
         with open(output_path, 'wb') as f:
             self.writer.write(f)
 
-    def render(self, params):
+    def render(self, params, jinja_env=None):
         """
         Renders the PDF template with the given parameters.
         """
         self.params = params
+        self.jinja_env = jinja_env or Environment()
         for i in range(self.reader.getNumPages()):
             page = self.reader.getPage(i)
             content = page.getContents().getObject()
