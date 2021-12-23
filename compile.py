@@ -41,7 +41,7 @@ def main():
     compile_script(SCRIPT_PATH, APP_NAME, ICON_PATH, WINDOW_ICON_PATH)
     print('Executable should be found under ./dist folder')
 
-    create_desktop_shortcut(get_compiled_script_path(APP_NAME))
+    # create_desktop_shortcut(get_compiled_script_path(APP_NAME))
 
 
 def run(cmd, **kwargs):
